@@ -1,0 +1,5 @@
+#Arquivos do PGAdmin
+pgadmin-data
+
+#Dados do banco de dados PostgreSQL
+postgres-data

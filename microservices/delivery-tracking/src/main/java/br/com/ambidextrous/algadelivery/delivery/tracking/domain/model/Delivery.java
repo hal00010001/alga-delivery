@@ -4,6 +4,7 @@ import br.com.ambidextrous.algadelivery.delivery.tracking.domain.exception.Domai
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,20 +76,34 @@ public class Delivery {
         this.calculateTotalItems();
     }
 
-    public void place(){
+    public void editPreparationDetails(PreparationDetails details){
 
-        this.setStatus(DeliveryStatus.WAITING_FOR_COURIER);
+        this.verifyIfCanBeEdited();
+
+        this.setSender(details.getSender());
+        this.setRecipient(details.getRecipient());
+        this.setDistanceFee(details.getDistanceFee());
+        this.setCourierPayout(details.getCourierPayout());
+
+        this.setExpectedDeliveryAt(OffsetDateTime.now().plus(details.getExpectedDeliveryTime()));
+        this.setTotalCost(this.getDistanceFee().add(this.getCourierPayout()));
+
+    }
+
+    public void place(){
+        this.verifyIfCanBePlaced();
+        this.changeStatusTo(DeliveryStatus.WAITING_FOR_COURIER);
         this.setPlacedAt(OffsetDateTime.now());
     }
 
     public void pickUp(UUID courierId){
         this.setCourierId(courierId);
-        this.setStatus(DeliveryStatus.IN_TRANSIT);
+        this.changeStatusTo(DeliveryStatus.IN_TRANSIT);
         this.setAssignedAt(OffsetDateTime.now());
     }
 
-    public void masrkAsDelivered(){
-        this.setStatus(DeliveryStatus.DELIVERY);
+    public void markAsDelivered(){
+        this.changeStatusTo(DeliveryStatus.DELIVERY);
         this.setFullfilledAt(OffsetDateTime.now());
     }
 
@@ -101,11 +116,17 @@ public class Delivery {
         this.setTotalItems(totalItems);
     }
 
-    private void verifyIfCanBePLaced(){
+    private void verifyIfCanBePlaced(){
         if(!isFilled()){
             throw new DomainException();
         }
-        if(this.getStatus().equals(DeliveryStatus.DRAFT)){
+        if(!this.getStatus().equals(DeliveryStatus.DRAFT)){
+            throw new DomainException();
+        }
+    }
+
+    public void verifyIfCanBeEdited(){
+        if(!this.getStatus().equals(DeliveryStatus.DRAFT)){
             throw new DomainException();
         }
     }
@@ -114,6 +135,29 @@ public class Delivery {
         return this.getSender() != null
                 && this.getRecipient() != null
                 && this.getTotalCost() != null;
+    }
+
+    private void changeStatusTo(DeliveryStatus newStatus){
+        if(newStatus != null &&  this.getStatus().canNotChangeTo(newStatus)){
+            throw new DomainException(
+                    "Invalid status tranistion from " + this.getStatus() +
+                            " to " + newStatus
+            );
+        }
+        this.setStatus(newStatus);
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    public static class PreparationDetails {
+
+        private ContactPoint sender;
+        private ContactPoint recipient;
+        private BigDecimal distanceFee;
+        private BigDecimal courierPayout;
+        private Duration expectedDeliveryTime;
+
     }
 
 }

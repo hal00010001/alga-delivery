@@ -1,38 +1,37 @@
-package br.com.ambidextrous.algadelivery.delivery.tracking.domain.model;
+package br.com.ambidextrous.algadelivery.delivery.tracking.domain.repository;
 
-import br.com.ambidextrous.algadelivery.delivery.tracking.domain.exception.DomainException;
+import br.com.ambidextrous.algadelivery.delivery.tracking.domain.model.ContactPoint;
+import br.com.ambidextrous.algadelivery.delivery.tracking.domain.model.Delivery;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DeliveryTest {
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class DeliveryRepositoryTest {
+
+    @Autowired
+    private DeliveryRepository deliveryRepository;
 
     @Test
-    public void shouldChangeToPlaced(){
+    public void shouldPersist(){
 
         Delivery delivery = Delivery.draft();
+
         delivery.editPreparationDetails(createValidPreparationDetails());
-        delivery.place();
+        delivery.addItem("Computador", 2, delivery);
+        delivery.addItem("Notebook", 2, delivery);
 
-        assertEquals(DeliveryStatus.WAITING_FOR_COURIER, delivery.getStatus());
-        assertNotNull(delivery.getPlacedAt());
+        deliveryRepository.saveAndFlush(delivery);
+        Delivery persistedDelivery = deliveryRepository.findById(delivery.getId()).orElseThrow();
 
-    }
-
-    @Test
-    public void shouldNotPlace(){
-
-        Delivery delivery = Delivery.draft();
-
-        assertThrows(DomainException.class, () -> {
-            delivery.place();
-        });
-
-        assertEquals(DeliveryStatus.DRAFT, delivery.getStatus());
-        assertNull(delivery.getPlacedAt());
+        assertEquals(2, persistedDelivery.getItems().size());
 
     }
 

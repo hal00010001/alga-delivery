@@ -2,6 +2,7 @@ package br.com.ambidextrous.algadelivery.courier.management.domain.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class AssignedDelivery {
     private OffsetDateTime assignedAt;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "courier_id", nullable = false)
     @Getter(AccessLevel.PRIVATE)
     private Courier courier;
 

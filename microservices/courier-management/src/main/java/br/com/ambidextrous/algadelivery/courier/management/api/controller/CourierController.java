@@ -1,8 +1,12 @@
 package br.com.ambidextrous.algadelivery.courier.management.api.controller;
 
 import br.com.ambidextrous.algadelivery.courier.management.api.model.CourierInput;
+import br.com.ambidextrous.algadelivery.courier.management.api.model.CourierPayoutCalculationInput;
+import br.com.ambidextrous.algadelivery.courier.management.api.model.CourierPayoutResultModel;
 import br.com.ambidextrous.algadelivery.courier.management.domain.model.Courier;
+import br.com.ambidextrous.algadelivery.courier.management.domain.model.CourierModel;
 import br.com.ambidextrous.algadelivery.courier.management.domain.repository.CourierRepository;
+import br.com.ambidextrous.algadelivery.courier.management.domain.service.CourierPayoutService;
 import br.com.ambidextrous.algadelivery.courier.management.domain.service.CourierRegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.w3c.dom.DOMException;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
@@ -23,6 +28,7 @@ public class CourierController {
 
     private final CourierRegistrationService courierRegistrationService;
     private final CourierRepository courierRepository;
+    private final CourierPayoutService courierPayoutService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -40,9 +46,27 @@ public class CourierController {
         return new PagedModel<>(courierRepository.findAll(pageable));
     }
 
-    @GetMapping("/{courierId}")
+    /*@GetMapping("/{courierId}")
     public Courier findById(@PathVariable UUID courierId){
         return courierRepository.findById(courierId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }*/
+
+    @GetMapping("/{courierId}")
+    public CourierModel findById(@PathVariable UUID courierId){
+        Courier courier = courierRepository.findById(courierId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        return new CourierModel(
+                courier.getId(),
+                courier.getName(),
+                courier.getPhone()
+        );
+    }
+
+    @PostMapping("/payout-calculation")
+    public CourierPayoutResultModel calculate(@RequestBody CourierPayoutCalculationInput input){
+        BigDecimal payoutFee = courierPayoutService.calculate(input.getDistanceInKm());
+        return new CourierPayoutResultModel(payoutFee);
     }
 
 }

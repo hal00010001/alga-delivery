@@ -1,5 +1,6 @@
 package br.com.ambidextrous.algadelivery.courier.management.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -36,6 +37,7 @@ public class Courier {
     private OffsetDateTime lastFulfilledDeliveryAt;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "courier")
+    @JsonIgnore
     private List<AssignedDelivery> pendingDeliveries = new ArrayList<>();
 
     public List<AssignedDelivery> getPendingDeliveries(){

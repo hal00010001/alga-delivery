@@ -1,4 +1,4 @@
-package br.com.ambidextrous.algadelivery.delivery.tracking.domain.service.infrastructure.fake;
+package br.com.ambidextrous.algadelivery.delivery.tracking.infrastructure.fake;
 
 import br.com.ambidextrous.algadelivery.delivery.tracking.domain.model.ContactPoint;
 import br.com.ambidextrous.algadelivery.delivery.tracking.domain.service.DeliveryEstimate;
@@ -15,9 +15,7 @@ public class DeliveryTimeEstimationServiceFakeImpl
     public DeliveryEstimate estimate(ContactPoint sender, ContactPoint receiver){
         return new DeliveryEstimate(
                 Duration.ofHours(3), 3.1
-
-        )
-
+        );
     }
 
 }

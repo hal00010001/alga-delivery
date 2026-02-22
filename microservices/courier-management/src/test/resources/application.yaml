@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: courier-management
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/courierdb_test
+    username: postgres
+    password: postgres-server
+    driver-class-name: org.postgresql.Driver
+server:
+  port: 8081

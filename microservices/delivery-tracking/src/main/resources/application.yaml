@@ -10,5 +10,19 @@ spring:
     username: postgres
     password: postgres-server
     driver-class-name: org.postgresql.Driver
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping:
+          delivery-placed-event:br.com.ambidextrous.algadelivery.delivery.tracking.domain.event.DeliveryPlacedEvent,
+          delivery-picked-up-event:br.com.ambidextrous.algadelivery.delivery.tracking.domain.event.DeliveryPickUpEvent,
+          delivery-fulfilled-event:br.com.ambidextrous.algadelivery.delivery.tracking.domain.event.DeliveryFulfilledEvent
+    admin:
+      auto-create: true
 server:
   port: 8080

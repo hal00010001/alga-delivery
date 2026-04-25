@@ -37,7 +37,7 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 #Valor padrão para replicação dos tópicos
     volumes:
-      - kafka-data:/apache/kafka
+      - ./kafka-data:/apache/kafka
     networks:
       - local-network
   kafka-ui:
